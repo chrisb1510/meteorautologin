@@ -1,30 +1,36 @@
 if Meteor.isServer
   @__COUNTER = 0
   Meteor.startup ->
-    Meteor.users.remove {}
+    Meteor.users.remove {'profile.default':true}
 
-    Meteor.onConnection (connection)->
+  Meteor.onConnection (connection)->
+    connection.onClose ->
+      console.log "connection closed"+connection.id
+      aUser = Meteor.users.findOne({'profile.connectionId':connection.id})
+      if aUser? and aUser.profile.default == true
+        Meteor.users.remove({"_id":aUser._id},(err,res)->
+          if res?
+            console.log res
+          else
+            console.log err
+        )
 
-      connection.onClose ->
-        console.log "connection closed"+connection.id
-        user = Meteor.users.findOne {'profile.connectionId':connection.id}
-        if user.profile.default is true
-          Meteor.users.remove {_id:user._id},(err,res)->
-            if err?
-              console.log err
-            else
-              console.log res+"success"
-        console.log user
-      return
-
-
-
-
-Meteor.methods
+  Meteor.methods
     getConnection:()->
-        connection = @connection
-        console.log connection
-        __COUNTER++
-        connection
+      connection = @connection
+      #console.log connection
+      __COUNTER++
+      connection
+
+        #Meteor.users.remove {_id:aUser._id},(err,res)->
+         # if err?
+          #  console.log err
+          #else
+           # console.log res+"success"
+            #console.log Meteor.users.find().count()
+           ###
+
+
+
 
 

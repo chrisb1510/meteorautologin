@@ -8,22 +8,27 @@ if Meteor.isClient
       password:"default"
       email:"#{tmp}@my.com"
       profile:
-
         name:"player#{tmp}"
         connectionId:"null"
         default:true
     }
-    console.log "new user:"+tmpUser
+    console.log tmpUser
 
-    Accounts.createUser tmpUser
+    Accounts.createUser tmpUser,(err,res)->
+      if res?
+        console.log res
+        res
+      else
+        console.log err
+        err
   else
     console.log Meteor.user()
-
+#dont know why this returns as an error
   Meteor.call "getConnection", (res,err)->
     if err?
-      console.log {connection:err}
+      #console.log {connection:err}
       connection = err
-      console.log connection
+      #console.log connection
       Meteor.users.update(Meteor.userId(),{$set:{'profile.connectionId':connection.id}})
 
 
@@ -33,16 +38,15 @@ if Meteor.isClient
 
 
 
-  console.log "hello this only runs on the client"
+  #console.log "hello this only runs on the client"
   Meteor.methods
-
     getConnection:()->
-      console.log @connection
+      console.log 'hello'
 
-  Template.userProfile.helpers
-    user:()->
-      return Meteor.user()
-  Template.userList.helpers
-    listOfUsers:()->
-      return Meteor.users.find {}
+Template.userProfile.helpers
+  user:()->
+    return Meteor.user()
+Template.userList.helpers
+  listOfUsers:()->
+    return Meteor.users.find {}
 
