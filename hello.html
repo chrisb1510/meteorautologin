@@ -4,13 +4,14 @@
 
 <body>
 {{#if currentUser}}
- {{> userprofile }}
+ {{> userProfile }}
 
 {{else}}
     {{> loginButtons}}
 {{/if}}
 
-  {{> hello}}
+{{> hello}}
+{{> userList}}
 </body>
 
 <template name="hello">
@@ -24,6 +25,24 @@
     <input type="submit">
     </section>
 </template>
-<template name="userprofile">
+<template name="userProfile">
     <h1>Welcome {{user.profile.name}}</h1>
+</template>
+<template name="userList">
+    <section id="userList">
+    <ul>
+    {{#each listOfUsers}}
+        {{> userDetails}}
+    {{/each}}
+    </ul>
+    </section>
+</template>
+
+<template name="userDetails">
+
+    <li>
+        <p>{{this.profile.name}}</p>
+        <p>{{this.profile.connectionId}}</p>
+    </li>
+
 </template>

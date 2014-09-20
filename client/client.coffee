@@ -3,26 +3,31 @@ if Meteor.isClient
 
   if Meteor.userId() is null
     tmp = Random.id()
-    tmpuser = {
+    tmpUser = {
       username:tmp
       password:"default"
       email:"#{tmp}@my.com"
       profile:
+
         name:"player#{tmp}"
-        connectionid:"null"
+        connectionId:"null"
+        default:true
     }
-    console.log "new user:"+tmpuser
+    console.log "new user:"+tmpUser
 
-    Accounts.createUser tmpuser
-
-    Meteor.call "getconnection", (res,err)->
-      if res?
-        console.log "RES: "+ res
-      else
-        console.log err
-
+    Accounts.createUser tmpUser
   else
     console.log Meteor.user()
+
+  Meteor.call "getConnection", (res,err)->
+    if err?
+      console.log {connection:err}
+      connection = err
+      console.log connection
+      Meteor.users.update(Meteor.userId(),{$set:{'profile.connectionId':connection.id}})
+
+
+
 
 
 
@@ -30,9 +35,14 @@ if Meteor.isClient
 
   console.log "hello this only runs on the client"
   Meteor.methods
-    setUserId:(user)->
-      console.log user
-  Template.userprofile.helpers
-      user:()->
-        return Meteor.user()
+
+    getConnection:()->
+      console.log @connection
+
+  Template.userProfile.helpers
+    user:()->
+      return Meteor.user()
+  Template.userList.helpers
+    listOfUsers:()->
+      return Meteor.users.find {}
 
