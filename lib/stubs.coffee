@@ -1,0 +1,2 @@
+#stub = _.extend({},Meteor)
+

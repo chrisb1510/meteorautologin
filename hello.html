@@ -1,0 +1,29 @@
+<head>
+  <title>hello</title>
+</head>
+
+<body>
+{{#if currentUser}}
+ {{> userprofile }}
+
+{{else}}
+    {{> loginButtons}}
+{{/if}}
+
+  {{> hello}}
+</body>
+
+<template name="hello">
+  <button>Click Me</button>
+  <p>You've pressed the button {{counter}} times.</p>
+</template>
+<template name="loginButtons">
+    <section id="loginButtons">
+    <input id="username" type="text" placeholder="Username...">
+    <input type="password" placeholder="password">
+    <input type="submit">
+    </section>
+</template>
+<template name="userprofile">
+    <h1>Welcome {{user.profile.name}}</h1>
+</template>
