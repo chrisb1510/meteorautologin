@@ -51,5 +51,13 @@
     <section id="chat">
         <input id="entry" type="text" placeholder="Enter your message">
         <input id="chatSub" type="submit" value="hello" />
+    <div id="chatMessages">
+        {{#each chatMessages}}
+            <div><p> <strong>{{owner}}</strong> says {{message}}, {{created}} </p></div>
+        {{/each}}
+
+    </div>
+
     </section>
+
 </template>

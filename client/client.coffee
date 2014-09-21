@@ -31,15 +31,8 @@ if Meteor.isClient
       connection = err
       #console.log connection
       Meteor.users.update(Meteor.userId(),{$set:{'profile.connectionId':connection.id}})
+#console.log "hello this only runs on the client"
 
-
-
-
-
-
-
-
-  #console.log "hello this only runs on the client"
   Meteor.methods
     getConnection:()->
       console.log 'hello'
@@ -50,6 +43,7 @@ if Meteor.isClient
   Template.userList.helpers
     listOfUsers:()->
       return Meteor.users.find {}
+
   Template.chat.events =
     'click #chatSub':(e)->
       message = $('input#entry').val()
@@ -59,3 +53,6 @@ if Meteor.isClient
           message:message
           created:new Date()
           room:Meteor.user().profile.currentRoom
+  Template.chat.helpers
+    chatMessages:()->
+      return Messages.find({"room":Meteor.user().profile.currentRoom},{limit:50})
