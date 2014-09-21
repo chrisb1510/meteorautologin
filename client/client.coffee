@@ -11,6 +11,7 @@ if Meteor.isClient
         name:"player#{tmp}"
         connectionId:"null"
         default:true
+        currentRoom:'main'
     }
     console.log tmpUser
 
@@ -43,10 +44,18 @@ if Meteor.isClient
     getConnection:()->
       console.log 'hello'
 
-Template.userProfile.helpers
-  user:()->
-    return Meteor.user()
-Template.userList.helpers
-  listOfUsers:()->
-    return Meteor.users.find {}
-
+  Template.userProfile.helpers
+    user:()->
+      return Meteor.user()
+  Template.userList.helpers
+    listOfUsers:()->
+      return Meteor.users.find {}
+  Template.chat.events =
+    'click #chatSub':(e)->
+      message = $('input#entry').val()
+      if message? and message isnt ""
+        Meteor.call 'insertMessage',
+          owner:Meteor.userId()
+          message:message
+          created:new Date()
+          room:Meteor.user().profile.currentRoom

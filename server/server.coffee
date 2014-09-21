@@ -22,13 +22,16 @@ if Meteor.isServer
       __COUNTER++
       connection
 
-        #Meteor.users.remove {_id:aUser._id},(err,res)->
-         # if err?
-          #  console.log err
-          #else
-           # console.log res+"success"
-            #console.log Meteor.users.find().count()
-           ###
+    insertMessage:(message)->
+      result = Messages.insert {
+        owner:message.owner
+        message:message.message
+        created:message.created
+        room:message.room},(err,res)->
+          if res?
+            res
+          if err?
+            err
 
 
 

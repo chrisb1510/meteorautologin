@@ -11,6 +11,7 @@
 {{/if}}
 
 {{> hello}}
+    {{> chat}}
 {{> userList}}
 </body>
 
@@ -45,4 +46,10 @@
         <p>{{this.profile.connectionId}}</p>
     </li>
 
+</template>
+<template name="chat">
+    <section id="chat">
+        <input id="entry" type="text" placeholder="Enter your message">
+        <input id="chatSub" type="submit" value="hello" />
+    </section>
 </template>
