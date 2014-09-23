@@ -1,7 +1,10 @@
 if Meteor.isClient
 
 
-  if Meteor.userId() is null
+  if Meteor.user()
+    console.log Meteor.user()
+
+  else
     tmp = Random.id()
     tmpUser = {
       username:tmp
@@ -10,27 +13,25 @@ if Meteor.isClient
       profile:
         name:"player#{tmp}"
         connectionId:"null"
-        default:true
         currentRoom:'main'
+        orig:true
     }
     console.log tmpUser
 
-    Accounts.createUser tmpUser,(err,res)->
-      if res?
-        console.log res
-        res
-      else
+    Accounts.createUser tmpUser,(err)->
+      if err?
         console.log err
         err
-  else
-    console.log Meteor.user()
+
+
 #dont know why this returns as an error
   Meteor.call "getConnection", (res,err)->
     if err?
-      #console.log {connection:err}
-      connection = err
+      #console.log err
+      connection = err.connection
+      playerNum = err.playerNumber
       #console.log connection
-      Meteor.users.update(Meteor.userId(),{$set:{'profile.connectionId':connection.id}})
+      Meteor.users.update(Meteor.userId(),{$set:{'profile.connectionId':connection.id,'profile.name':"player"+ playerNum}})
 #console.log "hello this only runs on the client"
 
   Meteor.methods
@@ -39,7 +40,37 @@ if Meteor.isClient
 
   Template.userProfile.helpers
     user:()->
-      return Meteor.user()
+      return Meteor.users.findOne Meteor.userId()
+  Template.passwordCheck.helpers
+    checkDefaultPassword:()->
+      Meteor.call 'defaultPasswordChecker', (res)->
+        if res
+          console.log res
+          false
+
+
+    setPassword:()->
+      if Meteor.userId()?
+
+        Accounts.changePassword 'default', $('newPassword').val() ,(err)->
+          if err?
+            console.log err
+
+
+
+
+
+
+#needs a template autorun somewhere in here, unsure where at the moment
+  Template.userProfile.events
+      'keydown input#nameChanger':(e)->
+        val = $('input#nameChanger').val()
+        if (e.which == 13 or e.keyCode == 13 ) and val isnt ""
+        #code to execute here
+          Meteor.users.update(Meteor.userId(),{$set:{'profile.name':val,'profile.orig':false}})
+
+
+
   Template.userList.helpers
     listOfUsers:()->
       return Meteor.users.find {}
@@ -54,5 +85,9 @@ if Meteor.isClient
           created:new Date()
           room:Meteor.user().profile.currentRoom
   Template.chat.helpers
+
     chatMessages:()->
-      return Messages.find({"room":Meteor.user().profile.currentRoom},{limit:50})
+      if Meteor.user()?
+        return Messages.find {"room":Meteor.user().profile.currentRoom },{limit:50}
+      else
+        return Messages.find {"room":"main" },{limit:50}
