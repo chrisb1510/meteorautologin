@@ -47,16 +47,24 @@ if Meteor.isClient
         if res
           console.log res
           false
-
-
     setPassword:()->
       if Meteor.userId()?
+        val = $('input#newPassword').val()
+        if val isnt ""
 
-        Accounts.changePassword 'default', $('newPassword').val() ,(err)->
-          if err?
-            console.log err
+          Accounts.changePassword 'default', val ,(err)->
+            if err?
+              console.log err
+            else
+              console.log 'password changed'
 
+  Template.passwordCheck.events =
+    'click input#submitPass' :(e)->
+      Template.passwordCheck.setPassword()
+    'keydown input#newPassword':(e)->
 
+      if (e.which == 13 or e.keyCode == 13 )
+        Template.passwordCheck.setPassword()
 
 
 

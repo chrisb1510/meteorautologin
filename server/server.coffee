@@ -1,7 +1,7 @@
 if Meteor.isServer
   @__COUNTER = 0
   Meteor.startup ->
-    Meteor.users.remove {'profile.orig':true}
+    Meteor.users.remove { 'profile.orig':true }
 
   Meteor.onConnection (connection)->
     connection.onClose ->
