@@ -1,13 +1,12 @@
 if Meteor.isClient
-  Template.newUser.helpers
-    rendered:()->
-  #this currently doesn't call, always makes a new user
 
-      Meteor.call "getConnection", (res,err)->
-        if err?
+  if Meteor.user() is null
+    console.log 'nouser'
+    Meteor.call "getConnection", (res,err)->
+      if err?
       #console.log err
-          connection = err.connection
-          player = "player"+err.playerNumber
+        connection = err.connection
+        player = "player"+err.playerNumber
       #console.log connection
         tmpUser = {
           username:player
@@ -21,9 +20,6 @@ if Meteor.isClient
               password:true
               username:true
           }
-
-
-
         Accounts.createUser tmpUser,(err)->
           if err?
             console.log err
@@ -65,23 +61,32 @@ if Meteor.isClient
         return false
 
     setUsername:()->
+      #check if there is a user logged in
       if Meteor.userId()?
+        #get the input value
         val = $('input#userName').val()
-
+        #make sure its not empty
         if val isnt ""
           result = Meteor.users.findOne({'username':val})
+          #check if the user is already present
           if result?
             console.log "L72: user already present"
+            #see if password input is empty
             passVal = $('input#password').val()
             if passVal isnt ""
+              #login with existing password and user
               Meteor.loginWithPassword val,passVal, (res,err)->
                 if err?
                   console.log "L79: password fail for entered user"
                 if res?
                   console.log "L81: valid #{res}"
+            else
+              #TODO
+              #prompt the user for a password
+              console.log "to be implemented"
 
           else
-            console.log 'L74: username Changed'
+            #if username is not duplicate set new name
             Meteor.call 'updateUsername', Meteor.userId(), val, (res,error)->
               if res?
                 console.log "user updated #{res}"
@@ -89,11 +94,10 @@ if Meteor.isClient
                 console.log "L79: user update error:  #{error}"
 
 
+  Template.userProfile.events
 
-
-  Template.userProfile.events =
     'keydown input#nameChanger':(e)->
-      val = $('input#nameChanger').val().display 'none'
+      val = $('input#nameChanger').val()
       if (e.which == 13 or e.keyCode == 13 ) and val isnt ""
         #code to execute here
           Meteor.call 'updateProfileName', Meteor.userId(), val ,(res) ->
@@ -120,6 +124,7 @@ if Meteor.isClient
       if message? and message isnt ""
         Meteor.call 'insertMessage',
           owner:Meteor.userId()
+          displayName:Meteor.user().profile.name
           message:message
           created:new Date()
           room:Meteor.user().profile.currentRoom
@@ -130,3 +135,12 @@ if Meteor.isClient
         return Messages.find {"room":Meteor.user().profile.currentRoom },{limit:50}
       else
         return Messages.find {"room":"main" },{limit:50}
+  Template.chatMessage.helpers
+    fullOwner:()->
+      console.log @
+      Meteor.users.find {'_id': @owner}, (err,res)->
+        if err?
+          console.log 'user not found'
+        else
+          console.log res
+          res

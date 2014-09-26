@@ -5,10 +5,12 @@
 
 <body>
 <h1>HND Project</h1>
-
+    {{#if currentUser is false}}
+        {{ newUser }}
+    {{/if}}
     {{> userProfile }}
 
-    {{>newUser}}
+
 
 
 {{> hello}}
@@ -29,7 +31,7 @@
     </section>
 </template>
 
-<template name="newUser"></template>
+
 <template name="userProfile">
 
     <header>
@@ -50,11 +52,7 @@
         </div>
     </header>
 </template>
-<template name="pass">
 
-
-
-</template>
 <template name="userList">
     <section id="users">
         <h2>Connected Users</h2>
@@ -72,7 +70,7 @@
 
     <li>
         <div>
-        <p>name:{{profile.name}} :: {{profile.connectionId}} </p>
+        <p>name:{{profile.name}} :: {{profile.orig.username}} / {{profile.orig.password}}  </p>
         </div>
     </li>
 
@@ -84,7 +82,8 @@
         <input id="chatSub" type="submit" value="Send" />
     <div id="chatMessages">
         {{#each chatMessages}}
-            <div><p> <strong>{{owner}}</strong> says {{message}}, {{created}} </p></div>
+            {{>chatMessage}}
+
         {{/each}}
 
     </div>
@@ -92,3 +91,8 @@
     </section>
 
 </template>
+<template name="chatMessage">
+
+    <div><p> <strong>{{displayName}}</strong> says {{message}}, {{created}} </p></div>
+
+    </template>

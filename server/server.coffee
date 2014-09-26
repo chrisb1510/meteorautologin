@@ -56,14 +56,17 @@ if Meteor.isServer
     insertMessage:(message)->
       result = Messages.insert {
         owner:message.owner
+        displayName:message.displayName
         message:message.message
         created:message.created
         room:message.room},(err,res)->
-        if res?
-          res
-        if err?
-          err
-
+          if err?
+            console.log "L: insert msg: #{err}"
+            err
+          else
+            console.log "L64: insert msg: #{res}"
+            res
+      result
 
 
 
