@@ -5,14 +5,17 @@
 
 <body>
 <h1>HND Project</h1>
-{{#if currentUser}}
- {{> userProfile }}
 
-{{else}}
-    {{> loginButtons}}
-{{/if}}
+    {{> userProfile }}
+
+    {{>newUser}}
+
 
 {{> hello}}
+
+
+
+
     {{> chat}}
 {{> userList}}
 </body>
@@ -26,40 +29,31 @@
     </section>
 </template>
 
-<template name="loginButtons">
-
-    <section id="loginButtons">
-        <h2>Login</h2>
-    <input id="username" type="text" placeholder="Username...">
-
-    </section>
-</template>
-
+<template name="newUser"></template>
 <template name="userProfile">
 
     <header>
         <div id="userDetails">
             <h2>User Details</h2>
-            <label for="nameChanger">Welcome</label>
+            <label for="nameChanger">Current Screen name: </label>
             {{#with user }}
-                {{#if user.profile.orig}}
-                    <input id="nameChanger" type="text" placeholder="{{user.profile.name}}" style="border: none"/>
-                {{else}}
-                    <p>User : {{user.profile.name}}</p>
+                <input id="nameChanger" type="text" placeholder="{{user.profile.name}}" style="border: none"/>
+                <label for="userName">Username:</label>
+                <input id="userName" type="text" placeholder="{{user.username}}" style="border: none"/>
+                <label for="password">Enter a password</label>
+                <input id="password" type="password" placeholder="Enter a password" style="border: none"/>
+                {{#if currentUser}}
+                    <input id="logout" type="button" value="logout {{user.username}}" content="logout "/>
+
                 {{/if}}
-            {{> passwordCheck }}
             {{/with}}
         </div>
     </header>
 </template>
-<template name="passwordCheck">
-    {{#if checkDefaultPassword}}
-        <p>you have set a password</p>
-    {{else}}
-        <input id="newPassword" type="password" placeholder="Enter a password">
-        <input id="submitPass" type="submit" placeholder="Create your Id" />
+<template name="pass">
 
-    {{/if}}
+
+
 </template>
 <template name="userList">
     <section id="users">

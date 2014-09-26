@@ -1,38 +1,34 @@
 if Meteor.isClient
+  Template.newUser.helpers
+    rendered:()->
+  #this currently doesn't call, always makes a new user
 
-
-  if Meteor.user()
-    console.log Meteor.user()
-
-  else
-    tmp = Random.id()
-    tmpUser = {
-      username:tmp
-      password:"default"
-      email:"#{tmp}@my.com"
-      profile:
-        name:"player#{tmp}"
-        connectionId:"null"
-        currentRoom:'main'
-        orig:true
-    }
-    console.log tmpUser
-
-    Accounts.createUser tmpUser,(err)->
-      if err?
-        console.log err
-        err
-
-
-#dont know why this returns as an error
-  Meteor.call "getConnection", (res,err)->
-    if err?
+      Meteor.call "getConnection", (res,err)->
+        if err?
       #console.log err
-      connection = err.connection
-      playerNum = err.playerNumber
+          connection = err.connection
+          player = "player"+err.playerNumber
       #console.log connection
-      Meteor.users.update(Meteor.userId(),{$set:{'profile.connectionId':connection.id,'profile.name':"player"+ playerNum}})
-#console.log "hello this only runs on the client"
+        tmpUser = {
+          username:player
+          password:"default"
+          email:"#{player}@my.com"
+          profile:
+            name:player
+            connectionId:connection.id
+            currentRoom:'main'
+            orig:
+              password:true
+              username:true
+          }
+
+
+
+        Accounts.createUser tmpUser,(err)->
+          if err?
+            console.log err
+            return Meteor.users.findOne {'_id':tmpUser._id}
+
 
   Meteor.methods
     getConnection:()->
@@ -41,41 +37,76 @@ if Meteor.isClient
   Template.userProfile.helpers
     user:()->
       return Meteor.users.findOne Meteor.userId()
-  Template.passwordCheck.helpers
+
     checkDefaultPassword:()->
       Meteor.call 'defaultPasswordChecker', (res)->
-        if res
-          console.log res
+        if res.error?
+          console.log "L46: pass not default: #{res.error}"
           false
+        res
     setPassword:()->
       if Meteor.userId()?
-        val = $('input#newPassword').val()
+        val = $('input#password').val()
         if val isnt ""
-
           Accounts.changePassword 'default', val ,(err)->
             if err?
-              console.log err
+              console.log "L53: change pass error: #{err}"
             else
               console.log 'password changed'
+              Meteor.users.update(Meteor.userId(),{$set:{'profile.orig.password': false}} )
+              #TODO
+              #hide password entry.
+              return
 
-  Template.passwordCheck.events =
-    'click input#submitPass' :(e)->
-      Template.passwordCheck.setPassword()
-    'keydown input#newPassword':(e)->
+    checkDefaultUsername:()->
+      if Meteor.user().profile.orig.username is true
+        return true
+      else
+        return false
 
-      if (e.which == 13 or e.keyCode == 13 )
-        Template.passwordCheck.setPassword()
+    setUsername:()->
+      if Meteor.userId()?
+        val = $('input#userName').val()
+
+        if val isnt ""
+          result = Meteor.users.findOne({'username':val})
+          if result?
+            console.log "L72: user already present"
+            passVal = $('input#password').val()
+            if passVal isnt ""
+              Meteor.loginWithPassword val,passVal, (res,err)->
+                if err?
+                  console.log "L79: password fail for entered user"
+                if res?
+                  console.log "L81: valid #{res}"
+
+          else
+            console.log 'L74: username Changed'
+            Meteor.call 'updateUsername', Meteor.userId(), val, (res,error)->
+              if res?
+                console.log "user updated #{res}"
+              if error?
+                console.log "L79: user update error:  #{error}"
 
 
 
 
-#needs a template autorun somewhere in here, unsure where at the moment
-  Template.userProfile.events
-      'keydown input#nameChanger':(e)->
-        val = $('input#nameChanger').val()
-        if (e.which == 13 or e.keyCode == 13 ) and val isnt ""
+  Template.userProfile.events =
+    'keydown input#nameChanger':(e)->
+      val = $('input#nameChanger').val().display 'none'
+      if (e.which == 13 or e.keyCode == 13 ) and val isnt ""
         #code to execute here
-          Meteor.users.update(Meteor.userId(),{$set:{'profile.name':val,'profile.orig':false}})
+          Meteor.call 'updateProfileName', Meteor.userId(), val ,(res) ->
+            if res?
+              console.log res
+
+    'keydown input#password':(e)->
+      if (e.which == 13 or e.keyCode == 13 )
+        Template.userProfile.setPassword()
+
+    'keydown input#userName':(e)->
+      if (e.which == 13 or e.keyCode == 13 )
+        Template.userProfile.setUsername()
 
 
 
